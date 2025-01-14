@@ -69,7 +69,7 @@ export const blankDashboardCR: DashboardConfig = {
       disableServingRuntimeParams: false,
       disableConnectionTypes: false,
       disableStorageClasses: false,
-      disableNIMModelServing: false,
+      disableNIMModelServing: true,
     },
     notebookController: {
       enabled: true,
