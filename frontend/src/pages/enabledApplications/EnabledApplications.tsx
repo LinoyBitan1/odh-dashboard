@@ -60,7 +60,7 @@ const EnabledApplications: React.FC = () => {
   const sortedComponents = React.useMemo(
     () =>
       _.cloneDeep(components)
-        .filter((component) => !component.spec.hidden)
+        .filter((component) => !component.spec.hidden && component.spec.isEnabled)
         .toSorted((a, b) => a.spec.displayName.localeCompare(b.spec.displayName)),
     [components],
   );
