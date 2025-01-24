@@ -30,6 +30,8 @@ const DEFAULT_BETA_TEXT =
   ' release. It won’t appear in the *Enabled* view, but you can access it by' +
   ' [signing up for beta access.](https://www.starburst.io/platform/starburst-galaxy/).';
 
+const NON_ADMIN_DISABELD_TEXT = 'Please contact admin to enable application';
+
 type GetStartedPanelProps = {
   selectedApp?: OdhApplication;
   onClose: () => void;
@@ -75,6 +77,13 @@ const GetStartedPanel: React.FC<GetStartedPanelProps> = ({ selectedApp, onClose,
     return button;
   };
 
+  const renderNotEnableText = () => {
+    if (isAdmin || isEnabled) {
+      return null;
+    }
+    return <Content>{NON_ADMIN_DISABELD_TEXT}</Content>;
+  };
+
   return (
     <DrawerPanelContent
       data-testid="explore-drawer-panel"
@@ -98,7 +107,7 @@ const GetStartedPanel: React.FC<GetStartedPanelProps> = ({ selectedApp, onClose,
       {selectedApp.spec.getStartedLink && (
         <DrawerPanelBody>
           <ActionList>
-            <ActionListGroup>
+            <ActionListGroup style={{ display: 'flex', alignItems: 'center' }}>
               <ActionListItem>
                 <Button
                   icon={<ExternalLinkAltIcon />}
@@ -117,6 +126,7 @@ const GetStartedPanel: React.FC<GetStartedPanelProps> = ({ selectedApp, onClose,
                 </Button>
               </ActionListItem>
               <ActionListItem>{renderEnableButton()}</ActionListItem>
+              <ActionListItem>{renderNotEnableText()}</ActionListItem>
             </ActionListGroup>
           </ActionList>
         </DrawerPanelBody>
