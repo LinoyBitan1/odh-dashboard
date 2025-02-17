@@ -2,6 +2,10 @@ import { InferenceServiceKind, ProjectKind, PodKind } from '~/k8sTypes';
 import { getDisplayNameFromK8sResource } from '~/concepts/k8s/utils';
 import { InferenceServiceModelState, ModelStatus } from '~/pages/modelServing/screens/types';
 import { asEnumMember } from '~/utilities/utils';
+import { useAppContext } from '~/app/AppContext';
+import { useIntegratedAppStatus } from '~/pages/exploreApplication/useIntegratedAppStatus';
+import { NIMAvailabilityContext } from '~/concepts/nimServing/NIMAvailabilityContext';
+import React from 'react';
 
 export const getInferenceServiceModelState = (
   is: InferenceServiceKind,
@@ -11,16 +15,21 @@ export const getInferenceServiceModelState = (
   InferenceServiceModelState.UNKNOWN;
 
 export const getInferenceServiceStatusMessage = (is: InferenceServiceKind): string => {
+  const { isNIMAvailable } = React.useContext(NIMAvailabilityContext);
+  if (!isNIMAvailable) {
+    return 'NVIDIA NIM is disabled';
+  }
   const activeModelState = is.status?.modelStatus?.states?.activeModelState;
   const targetModelState = is.status?.modelStatus?.states?.targetModelState;
 
   const stateMessage = (targetModelState || activeModelState) ?? 'Unknown';
-
+  console.log('stateMessage', stateMessage);
   if (
     activeModelState === InferenceServiceModelState.FAILED_TO_LOAD ||
     targetModelState === InferenceServiceModelState.FAILED_TO_LOAD
   ) {
     const lastFailureMessage = is.status?.modelStatus?.lastFailureInfo?.message;
+    console.log('lastFailureMessage', lastFailureMessage);
     return lastFailureMessage || stateMessage;
   }
 
