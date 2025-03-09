@@ -8,6 +8,7 @@ import { EnableApplicationStatus, useEnableApplication } from '~/utilities/useEn
 import { asEnumMember } from '~/utilities/utils';
 import EnableVariable from './EnableVariable';
 import './EnableModal.scss';
+import { getNIMData } from '../modelServing/screens/projects/nimUtils';
 
 type EnableModalProps = {
   selectedApp: OdhApplication;
@@ -23,6 +24,7 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
     () => isEmpty(enableValues) || values(enableValues).some((val) => isEmpty(val)),
     [enableValues],
   );
+  const [previousSecret, setPreviousSecret] = React.useState<string|null>(null);
   const [validationStatus, validationErrorMessage] = useEnableApplication(
     validationInProgress,
     selectedApp.metadata.name,
@@ -50,10 +52,12 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
   };
 
   const handleClose = React.useCallback(() => {
-    setEnableValues({});
-    setPostError('');
+    if(!validationInProgress){
+      setEnableValues({});
+      setPostError('');
+    }
     onClose();
-  }, [onClose]);
+  }, [onClose, validationInProgress]);
 
   React.useEffect(() => {
     if (validationInProgress && validationStatus === EnableApplicationStatus.SUCCESS) {

@@ -1,6 +1,7 @@
 import { KubeFastifyInstance, NIMAccountKind, SecretKind } from '../../../../types';
 import createError from 'http-errors';
 import { errorHandler } from '../../../../utils';
+import { buffer } from 'stream/consumers';
 
 const NIM_SECRET_NAME = 'nvidia-nim-access';
 const NIM_ACCOUNT_NAME = 'odh-nim-account';
@@ -118,6 +119,27 @@ export const manageNIMSecret = async (
     } else {
       throw e;
     }
+  }
+};
+
+export const getNIMSecret = async (
+  fastify: KubeFastifyInstance,
+): Promise<{ [key: string]: string }> => {
+  const { coreV1Api, namespace } = fastify.kube;
+  try {
+    // Try to read the secret
+    const response = await coreV1Api.readNamespacedSecret(NIM_SECRET_NAME, namespace);
+    // Decode all base64-encoded secret values
+    const decodedSecret = Object.fromEntries(
+      Object.entries(response.body.data).map(([key, value]) => [
+        key,
+        Buffer.from(value, 'base64').toString(),
+      ])
+    );
+
+    return decodedSecret;
+  } catch (e: any) {
+    throw new Error(`Failed to get NIM secret: ${e.message}`);
   }
 };
 
