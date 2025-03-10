@@ -83,6 +83,27 @@ export const createNIMAccount = async (fastify: KubeFastifyInstance): Promise<NI
   return Promise.resolve(response.body as NIMAccountKind);
 };
 
+export const getNIMSecret = async (
+  fastify: KubeFastifyInstance,
+): Promise<{ [key: string]: string }> => {
+  const { coreV1Api, namespace } = fastify.kube;
+  try {
+    // Try to read the secret
+    const response = await coreV1Api.readNamespacedSecret(NIM_SECRET_NAME, namespace);
+    // Decode all base64-encoded secret values
+    const decodedSecret = Object.fromEntries(
+      Object.entries(response.body.data).map(([key, value]) => [
+        key,
+        Buffer.from(value, 'base64').toString(),
+      ])
+    );
+
+    return decodedSecret;
+  } catch (e: any) {
+    throw new Error(`Failed to get NIM secret: ${e.message}`);
+  }
+};
+
 export const manageNIMSecret = async (
   fastify: KubeFastifyInstance,
   enableValues: { [key: string]: string },

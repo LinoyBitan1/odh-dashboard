@@ -3,7 +3,7 @@ import { Alert, Button, Form, FormAlert, Spinner, TextInputTypes } from '@patter
 import { Modal, ModalVariant } from '@patternfly/react-core/deprecated';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { isEmpty, values } from 'lodash-es';
-import { OdhApplication } from '~/types';
+import { OdhApplication, VariablesValidationStatus } from '~/types';
 import { EnableApplicationStatus, useEnableApplication } from '~/utilities/useEnableApplication';
 import { asEnumMember } from '~/utilities/utils';
 import EnableVariable from './EnableVariable';
@@ -50,13 +50,19 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
   };
 
   const handleClose = React.useCallback(() => {
+    console.log('VALIDATION STATUSE DEBUG', EnableApplicationStatus[validationStatus]);
+
+    // if (!validationInProgress) {
     setEnableValues({});
     setPostError('');
+    // }
     onClose();
-  }, [onClose]);
+  }, [onClose, validationInProgress]);
 
   React.useEffect(() => {
+    console.log('VALIDATION STATUSE DEBUG', EnableApplicationStatus[validationStatus]);
     if (validationInProgress && validationStatus === EnableApplicationStatus.SUCCESS) {
+      console.log('SUCCESS STATUS DEBUG')
       setValidationInProgress(false);
       // TODO: Disable rule below temporarily. Refactor to notify the owner and avoid modifying the object directly.
       /* eslint-disable no-param-reassign */
@@ -67,6 +73,7 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
       handleClose();
     }
     if (validationInProgress && validationStatus === EnableApplicationStatus.FAILED) {
+      console.log('FALIED STATUS DEBUG')
       setValidationInProgress(false);
       setPostError(validationErrorMessage);
     }

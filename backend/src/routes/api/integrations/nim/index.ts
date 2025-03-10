@@ -11,6 +11,7 @@ import {
   getNIMAccount,
   isAppEnabled,
   manageNIMSecret,
+  getNIMSecret
 } from './nimUtils';
 
 module.exports = async (fastify: KubeFastifyInstance) => {
@@ -89,6 +90,7 @@ module.exports = async (fastify: KubeFastifyInstance) => {
         const enableValues = request.body;
 
         try {
+          const prevValues = await getNIMSecret(fastify);
           await manageNIMSecret(fastify, enableValues);
           // Ensure the account exists
           try {
@@ -97,6 +99,11 @@ module.exports = async (fastify: KubeFastifyInstance) => {
             const isEnabled = isAppEnabled(nimAccount);
             const keyValidationStatus: string = apiKeyValidationStatus(nimAccount);
             const keyValidationTimeStamp: string = apiKeyValidationTimestamp(nimAccount);
+            // if (keyValidationStatus === VariablesValidationStatus.FAILED) {
+            //   if (prevValues) {
+            //     await manageNIMSecret(fastify, prevValues);
+            //   }
+            // }
             reply.send({
               isInstalled: true,
               isEnabled: isEnabled,
