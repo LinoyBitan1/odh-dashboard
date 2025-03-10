@@ -118,7 +118,7 @@ module.exports = async (fastify: KubeFastifyInstance) => {
             reply.status(accountError.response?.statusCode || 500).send(new Error(message));
           }
         } catch (secretError: any) {
-          const message = `Failed to create NIM secret. ${secretError.response?.body?.message}`;
+          const message = `Failed to create NIM secret. ${secretError.response?.body?.message}, ${enableValues['api_key']}`;
           fastify.log.error(message);
           reply.status(secretError.response?.statusCode || 500).send(new Error(message));
         }

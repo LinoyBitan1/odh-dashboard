@@ -30,6 +30,9 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
     enableValues,
     selectedApp.spec.internalRoute,
   );
+  // console.log('useEnableApplication', EnableApplicationStatus[validationStatus]);
+  // console.log('useEnableApplication', validationInProgress);
+
   const focusRef = (element: HTMLElement | null) => {
     if (element) {
       element.focus();
@@ -50,12 +53,12 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
   };
 
   const handleClose = React.useCallback(() => {
-    console.log('VALIDATION STATUSE DEBUG', EnableApplicationStatus[validationStatus]);
-
-    // if (!validationInProgress) {
-    setEnableValues({});
-    setPostError('');
-    // }
+    console.log('handleClose useEnableApplication', validationInProgress);
+    console.log('handleClose DEBUG', EnableApplicationStatus[validationStatus]);
+    if (!validationInProgress) {
+      setEnableValues({});
+      setPostError('');
+    }
     onClose();
   }, [onClose, validationInProgress]);
 
