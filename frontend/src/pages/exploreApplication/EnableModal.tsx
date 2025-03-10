@@ -9,6 +9,7 @@ import { asEnumMember } from '~/utilities/utils';
 import EnableVariable from './EnableVariable';
 import './EnableModal.scss';
 import { getNIMData } from '../modelServing/screens/projects/nimUtils';
+import { getIntegrationAppEnablementStatus } from '~/services/integrationAppService';
 
 type EnableModalProps = {
   selectedApp: OdhApplication;
@@ -24,7 +25,7 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
     () => isEmpty(enableValues) || values(enableValues).some((val) => isEmpty(val)),
     [enableValues],
   );
-  const [previousSecret, setPreviousSecret] = React.useState<string|null>(null);
+  const [previousSecret, setPreviousSecret] = React.useState<string | null>(null);
   const [validationStatus, validationErrorMessage] = useEnableApplication(
     validationInProgress,
     selectedApp.metadata.name,
@@ -32,6 +33,7 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
     enableValues,
     selectedApp.spec.internalRoute,
   );
+
   const focusRef = (element: HTMLElement | null) => {
     if (element) {
       element.focus();
@@ -47,17 +49,35 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
   };
 
   const onDoEnableApp = () => {
-    setPostError('');
-    setValidationInProgress(true);
+    if (!validationInProgress) {
+      setPostError('');
+      setValidationInProgress(true);
+    }
   };
 
   const handleClose = React.useCallback(() => {
-    if(!validationInProgress){
+    console.log("validation status", EnableApplicationStatus[validationStatus]);
+    console.log("enablevalues", enableValues);
+    if (!validationInProgress) {
       setEnableValues({});
       setPostError('');
     }
     onClose();
   }, [onClose, validationInProgress]);
+
+
+  // React.useEffect(()=>{
+  //   if(shown && selectedApp.spec.internalRoute){
+  //     getIntegrationAppEnablementStatus(selectedApp.spec.internalRoute).then((data)=>{
+  //       if(data.apiKey){
+  //         setPreviousSecret(data.apiKey);
+  //       }
+  //     })
+  //     .catch((err) =>{
+  //       console.log("err",err);
+  //     });
+  //   }
+  // },[shown]);
 
   React.useEffect(() => {
     if (validationInProgress && validationStatus === EnableApplicationStatus.SUCCESS) {
@@ -72,6 +92,7 @@ const EnableModal: React.FC<EnableModalProps> = ({ selectedApp, shown, onClose }
     }
     if (validationInProgress && validationStatus === EnableApplicationStatus.FAILED) {
       setValidationInProgress(false);
+      // setEnableValues(previousSecret);
       setPostError(validationErrorMessage);
     }
   }, [

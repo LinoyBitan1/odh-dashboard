@@ -715,4 +715,5 @@ export type IntegrationAppStatus = {
   variablesValidationStatus?: VariablesValidationStatus;
   variablesValidationTimestamp?: string;
   error: string;
+  prevEnableValues?: { [key: string]: string }
 };

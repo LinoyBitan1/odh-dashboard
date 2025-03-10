@@ -122,6 +122,68 @@ export const manageNIMSecret = async (
   }
 };
 
+//   try {
+//     // Try to read the secret
+//     const response = await coreV1Api.readNamespacedSecret(NIM_SECRET_NAME, namespace);
+//     let secretData = response.body.stringData || response.body.data || {};
+//     if (!secretData['api_key']) {
+//       secretData['api_key'] = enableValues['api_key'];
+//     }
+//     // Secret already exists, so update it (replace)
+//     const updateResponse = await coreV1Api.replaceNamespacedSecret(
+//       NIM_SECRET_NAME,
+//       namespace,
+//       { ...nimSecret, stringData: secretData },
+//     );
+//     return { secret: updateResponse.body as SecretKind };
+//   } catch (e: any) {
+//     if (e.response?.statusCode === 404) {
+//       // Try to create the secret
+//       const CreateResponse = await coreV1Api.createNamespacedSecret(namespace, nimSecret);
+//       return { secret: CreateResponse.body as SecretKind };
+//     } else {
+//       throw e;
+//     }
+//   }
+// };
+
+//   try {
+//     // Try to create the secret
+//     const response = await coreV1Api.createNamespacedSecret(namespace, nimSecret);
+//     return { secret: response.body as SecretKind };
+//   } catch (e: any) {
+//     if (e.response?.statusCode === 409) {
+//       try {
+//         // Try to read the secret
+//         const response = await coreV1Api.readNamespacedSecret(NIM_SECRET_NAME, namespace);
+//         let existingData = response.body.data || {};
+//         fastify.log.level = 'debug';
+//         fastify.log.info(existingData);
+//         const updatedData = {
+//           ...existingData,
+//           ...enableValues,
+//         }
+//         const updatedSecret = {
+//           ...response.body,
+//           stringData: updatedData
+//         }
+
+//         // Secret already exists, so update it (replace)
+//         const updateResponse = await coreV1Api.replaceNamespacedSecret(
+//           NIM_SECRET_NAME,
+//           namespace,
+//           updatedSecret,
+//         );
+//         return { secret: updateResponse.body as SecretKind };
+//       }
+//       catch (updateError) { throw new Error(`Failed to update existing secret : ${updateError.message}`) }
+
+//     } else {
+//       throw e;
+//     }
+//   };
+// };
+
 export const getNIMSecret = async (
   fastify: KubeFastifyInstance,
 ): Promise<{ [key: string]: string }> => {
@@ -138,6 +200,19 @@ export const getNIMSecret = async (
     );
 
     return decodedSecret;
+  } catch (e: any) {
+    throw new Error(`Failed to get NIM secret: ${e.message}`);
+  }
+};
+
+export const getNIMkey = async (
+  fastify: KubeFastifyInstance,
+): Promise<string | null> => {
+  const { coreV1Api, namespace } = fastify.kube;
+  try {
+    // Try to read the secret
+    const response = await coreV1Api.readNamespacedSecret(NIM_SECRET_NAME, namespace);
+    return response.body.stringData ? response.body.stringData['api_key'] : null;
   } catch (e: any) {
     throw new Error(`Failed to get NIM secret: ${e.message}`);
   }

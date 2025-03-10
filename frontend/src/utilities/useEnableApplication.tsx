@@ -146,6 +146,13 @@ export const useEnableApplication = (
         enableIntegrationApp(internalRoute, enableValues)
           .then((response) => {
             if (!closed) {
+              if (response.variablesValidationStatus === VariablesValidationStatus.FAILED) {
+                if (response.prevEnableValues) {
+                  enableIntegrationApp(internalRoute, response.prevEnableValues).then((restoreResponse) => {
+                    setEnableStatus({ status: EnableApplicationStatus.FAILED, error: 'API key validation failed' });
+                  });
+                }
+              }
               if (response.isInstalled && response.canInstall) {
                 setEnableStatus({ status: EnableApplicationStatus.INPROGRESS, error: '' });
                 setLastVariablesValidationTimestamp(response.variablesValidationTimestamp || '');
